@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-depl
+spec:
+  # How many pods do you want this deployment to run? This is what replicas specifies
+  replicas: 1
+  # Tells the Deployment which are the pods it needs to manage
+  selector:
+    matchLabels:
+      # This is a label. This is how the Deployment is going to find the pods it needs to manage.
+      # The key could be anything really. `app` doesn't have a specific meaning.
+      app: auth
+  # Template for the pods - essentially a the content of a pod config file:
+  template:
+    metadata:
+      # This ties in with `matchLabels` selector spec above - i.e. the Deployment is going to create pods with the label app: auth
+      # (and these are the ones that the selector above will find)
+      labels:
+        app: auth
+    spec:
+      containers:
+        - name: auth
+          # could be `busdav/auth:latest`, but `latest` can be omitted - K8 (or Docker?) will then still look for latest by default, on Docker Hub
+          image: busdav/auth
+
+# Whenever you create a deployment, you usually also want to create a cluster IP Service (which is a Kubernetes service),
+# in order to give you access to a pod.
+# A cluster IP service is going to allow communication to that cluster IP service from anything else running (only) inside of our cluster.
+# To colocate  the cluster IP config in the same file as the deployment config file, you can do that via the
+# three dashes separator. (You could also create a separate file for it, but often there will be a 1:1 ratio between our
+# deployments and our (cluster IP) services, so it kind of makes sense to put everything into one file.)
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-srv
+spec:
+  selector:
+    app: auth
+  # By default, K8s will create a type of ClusterIP, so next line is optional
+  type: ClusterIP
+  ports:
+    - name: auth
+      protocol: TCP
+      # Port should match the port that the express app of this microservice is listening on:
+      port: 3000
+      targetPort: 3000
