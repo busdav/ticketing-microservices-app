@@ -1,4 +1,6 @@
+# selects the "bucket" of kubernetes objects we want to access
 apiVersion: apps/v1
+# from that bucket, which kind of objects do we want to create?
 kind: Deployment
 metadata:
   name: auth-depl
@@ -9,6 +11,7 @@ spec:
   selector:
     matchLabels:
       # This is a label. This is how the Deployment is going to find the pods it needs to manage.
+      # The whole label/selector system is very similar to HTML tags
       # The key could be anything really. `app` doesn't have a specific meaning.
       app: auth
   # Template for the pods - essentially a the content of a pod config file:
@@ -20,12 +23,15 @@ spec:
         app: auth
     spec:
       containers:
+        # dash means that the following is an array entity
         - name: auth
-          # could be `busdav/auth:latest`, but `latest` can be omitted - K8 (or Docker?) will then still look for latest by default, on Docker Hub
+          # If we don't add the version number at the end, it means implicitly `busdav/posts:latest`.
+          # That gives kubernetes ("k8s") the instruction to go to docker hub and look for latest version.
+          # If however we put a specific version, k8s will use that one if it finds it on the machine it is running on.
           image: busdav/auth
 
 # Whenever you create a deployment, you usually also want to create a cluster IP Service (which is a Kubernetes service),
-# in order to give you access to a pod.
+# in order to give you access to a pod *from within your cluster*.
 # A cluster IP service is going to allow communication to that cluster IP service from anything else running (only) inside of our cluster.
 # To colocate  the cluster IP config in the same file as the deployment config file, you can do that via the
 # three dashes separator. (You could also create a separate file for it, but often there will be a 1:1 ratio between our
@@ -43,6 +49,8 @@ spec:
   ports:
     - name: auth
       protocol: TCP
-      # Port should match the port that the express app of this microservice is listening on:
+      # Port of the k8s service that we're configuring:
       port: 3000
+      # Port of the k8s pod (with our container) where that service should be routing traffic to:
+      # Port should match the port that the express app of this microservice, running inside the container, is listening on:
       targetPort: 3000

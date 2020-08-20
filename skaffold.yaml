@@ -1,0 +1,37 @@
+# Skaffold is going to make it easy to get our different microservices up and running (and maintained) inside of our k8s cluster.
+apiVersion: skaffold/v2alpha3
+kind: Config
+# Deploy section is going to list out all the different config files we want to load into our cluster.
+deploy:
+  kubectl:
+    # The manifest line tells skaffold to watch our k8s directory for changes in any of the files.
+    # Upon any change, it shall reapply the respective yaml config files to our cluster. Essentially, skaffold is doing three things:
+    # 1, upon starting skaffold, it's going to apply all config files listed in the manifests,
+    # 2, upon us making changes to the config files listed in the manifests, it's going to re-apply them,
+    # 3, upon us stopping skaffold, it's going to delete all objects related to the config files listed in the manifests.
+    # (3 is good because our local machine is ONE k8s cluster, and we want to keep it clean for instance when we work on several different projects.)
+    manifests:
+      - ./infra/k8s/*
+build:
+  local:
+    # Disable default behavior of pushing updated images to Dockerhub, as not needed when we work with Skaffold
+    push: false
+  # Artifacts section tells Skaffold about something inside of our project that it needs to maintain. Essentially, we're saying, e.g. there is
+  # going to be a pod that is running code out of our /auth directory (`context`). Whenever something changes inside that directory, Skaffold is going to
+  # try and update our pod, in two ways: manual: if it is a JS file, drop the JS file directly into the pod. If it is a different file, just rebuild
+  # the whole image, and update the deployment tied to it. For the manual JS update: note that INSIDE the container contained in the pod, we have
+  # the create-react-app dev server (if applicable) and the nodemon utility. Both will, for changes INSIDE the container, restart the respective servers.
+  # So, there's two levels of updates monitoring ongoing: Skaffold for stuff within the code base, and CRA dev server / nodemon WITHIN a container in a
+  # pod that make sure that servers / primary processes are restarted upon manual changes.
+  artifacts:
+    - image: busdav/auth
+      context: auth
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          # src: the set of files that skaffold needs to watch. We want skaffold to watch, inside of our src directory, ALL the files that end with '.ts'.
+          - src: "src/**/*.ts"
+            # Destination: where to sync this file to inside of our running containter. The '.' means essentially means 'just take wherever this file was
+            # found from, and through it into the corresponding path inside the container'.
+            dest: .
