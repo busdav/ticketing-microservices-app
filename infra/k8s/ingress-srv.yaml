@@ -1,0 +1,33 @@
+# The ingress-nginx Ingress Controller we need to install separately into the cluster on our local machine. This present file is the config file
+# for such controller. Once installed in our local cluster, the ingress-nginx Ingress Controller will stay installed
+# (even when you stop skaffold for instance) unless we manually uninstall it. Once installed the controller is going to continuously scan
+# all the different config files we're throwing into the Cluster.
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-service
+  # The first annotation below will help the Ingress Controller understand that we're trying to feed it some routing rules.
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  # `rules` will have the actual routing rules to apply to outside world incoming traffic, within the cluster.
+  rules:
+    # `host` will tell the Ingress Controller which app the rules apply to. Because, k8s is assuming that there could be several apps within one
+    # cluster. Now, how do we translate this into our local dev environment? We need to trick our local machine into thinking that
+    # whenever we say 'go to ticketing.dev', local machine needs to go to localhost ->
+    # This is done via a config change in our local `/etc/hosts` file (add `127.0.0.1 ticketing.dev`)
+    # The ticketing.dev url could be anything - chosen here as it seems semantic.
+    # Note that if you try to access, in Chrome, http://ticketing.dev/api/users/currentuser, for instance, it will throw you the "Your connection
+    # is not private" error (because the nginx server uses a self-signed certificate). Now, due to the nginx ingress settings, we are UNABLE to dismiss
+    # the error through the "Advanced" tab. What we can do is click into the page anywhere and then type "thisisunsafe", which will let us pass.
+    - host: ticketing.dev
+      http:
+        paths:
+          # The routing configuration we specify below is going to be interpreted by nginx. nginx does not support the `:id` wildcard.
+          # If we want that, it needs to be RegEx. For that, we need to add the regex annotation (see above).
+          # The standard wildcard route `/?(.*)` for the react app needs to be at the end.
+          - path: /api/users/?(.*)
+            backend:
+              serviceName: auth-srv
+              servicePort: 3000
