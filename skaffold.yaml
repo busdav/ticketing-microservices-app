@@ -13,9 +13,13 @@ deploy:
     manifests:
       - ./infra/k8s/*
 build:
-  local:
-    # Disable default behavior of pushing updated images to Dockerhub, as not needed when we work with Skaffold
-    push: false
+  # # We can only specify either local or remote builds. As we're using GCP, the former local one is commented out.
+  # local:
+  #   # Disable default behavior of pushing updated images to Dockerhub, as not needed when we work with Skaffold
+  #   push: false
+  # In case we use a cluster on GCP, we need to specify the following:
+  googleCloudBuild:
+    projectId: ticketing-dev-udemy-289609
   # Artifacts section tells Skaffold about something inside of our project that it needs to maintain. Essentially, we're saying, e.g. there is
   # going to be a pod that is running code out of our /auth directory (`context`). Whenever something changes inside that directory, Skaffold is going to
   # try and update our pod, in two ways: manual: if it is a JS file, drop the JS file directly into the pod. If it is a different file, just rebuild
@@ -24,7 +28,9 @@ build:
   # So, there's two levels of updates monitoring ongoing: Skaffold for stuff within the code base, and CRA dev server / nodemon WITHIN a container in a
   # pod that make sure that servers / primary processes are restarted upon manual changes.
   artifacts:
-    - image: busdav/auth
+    # If we use a cluster on GCP, we need to use the image name that GCP will assign to our images, which is structured as follows:
+    # (the last part is the name of our project directory) (before GCP, locally, we just used `busdav/auth`)
+    - image: us.gcr.io/ticketing-dev-udemy-289609/auth
       context: auth
       docker:
         dockerfile: Dockerfile

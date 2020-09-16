@@ -28,7 +28,7 @@ spec:
           # If we don't add the version number at the end, it means implicitly `busdav/posts:latest`.
           # That gives kubernetes ("k8s") the instruction to go to docker hub and look for latest version.
           # If however we put a specific version, k8s will use that one if it finds it on the machine it is running on.
-          image: busdav/auth
+          image: us.gcr.io/ticketing-dev-udemy-289609/auth
 
 # Whenever you create a deployment, you usually also want to create a cluster IP Service (which is a Kubernetes service),
 # in order to give you access to a pod *from within your cluster*.
