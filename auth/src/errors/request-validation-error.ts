@@ -1,10 +1,23 @@
+// Differentiate between `ValidationError` from express-vaidator and our self-made `RequestValidationError`
 import { ValidationError } from "express-validator";
 
 export class RequestValidationError extends Error {
   /*
-  Note that putting modifier `private` in `private errors:...` is equivalent to saying, inside the constructor, `this.errors: errors`, 
-  defining at the same time, outside the constructor, `errors: ValidationError[]` (read: ValidationError array), in other words:
-  taking the property errors, and assigning it as a property to the overall class. It's probably shorthand. 
+  Note that here we are using TS parameter properties. Paramater properties let us create and initialize class member variables in one place. 
+  It is a shorthand for creating member variables. So, instead of, outside the constructor, putting the type definition 
+  `private _errors: ValidationError[]` (read: "ValidationError array"), then
+  having the constructur be `constructor(errors: ValidationError[])` (i.e. defining arguments including defining their type) and, 
+  inside the constructor, putting `this._errors = errors`, 
+  we simply put the keyword `private` directly in the parameters of the constructor in order to make user of parameter properties:  
+  `constructor(private _errors: ValidationError[])`. 
+  With either, what we are doing is, we are taking the property `_errors`, and assigning it as a property to the overall class.
+  Note: if you look at DatabaseConnectionError, there, outside the constructor, we have a hard-coded property `reason`. Note the difference there:
+  This is an *assignment* of a class member variable. It being hard-coded, we do not need any argument/parameter input from the constructor; 
+  therefore, we are defining and assigning this member variable OUTSIDE the constructor. Also, we're making use of TS type inference there:
+  we're not explicitly defining `reason` as a string - we're just ASSIGNING a string directly. 
+  Note: I really need to differentiate between variable assignment with `=` (applies also within classes), 
+  object property assignment with `:`
+  and TS type definition with `:`
   */
   constructor(public errors: ValidationError[]) {
     super();
