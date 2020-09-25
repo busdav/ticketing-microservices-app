@@ -1,7 +1,28 @@
 // Differentiate between `ValidationError` from express-vaidator and our self-made `RequestValidationError`
 import { ValidationError } from "express-validator";
 
+/* 
+An alternative to the approach used here with the Abstract Class would be to define an interface 
+(ideally in a separate file in the errors directory)
+that makes sure that your custom error class is implemented directly. The interface could be as below, and you'd then add, 
+when declaring the class, `export class RequestValidationError extends Error implements CustomError {`
+The interface would be: 
+// interface CustomError {
+//   statusCode: number;
+//   serializeErrors(): {
+//     message: string;
+//     field?: string;
+//   }[];
+// }
+Why are we using an Abstract Class here? Mainly, because we want to be able to use the `instanceof` check against its subclasses, see our 
+error handler. Remember that TS interfaces just fall away when translated into JS (they do not exist there), whereas abstract classes
+actually create a class in JS. So, abstract classes can be used, just like interfaces, to set up data structure requirements, but they 
+also create a class when compiled to JS, which is useful in our circumstances. Further props of abstract classes: 
+they cannot be instantiated, but, as said, can be used to set up requirements for subclasses. 
+*/
+
 export class RequestValidationError extends Error {
+  statusCode = 400;
   /*
   Note that here we are using TS parameter properties. Paramater properties let us create and initialize class member variables in one place. 
   It is a shorthand for creating member variables. So, instead of, outside the constructor, putting the type definition 
@@ -32,5 +53,21 @@ export class RequestValidationError extends Error {
     Object.setPrototypeOf() to its actual class
     */
     Object.setPrototypeOf(this, RequestValidationError.prototype);
+  }
+
+  serializeErrors() {
+    /* 
+    We know that a RequestValidationError has a prop of `errors` which is an array of objects (see above - in the constructor, we define 
+    the `errors` property as an array of `ValidationError` objects). 
+    What we are doing here is to map over that array, in other words, create and return a new array with the following entries:
+    for each entry of the original array (there, each entry was an object) we're going to create an object with `message` and `field` properties. 
+    I.e., we prepare the "inner" part of our common response structure for errors, i.e. an array of objects, 
+    for the error handler to then be able to take that array, put it into the object with the `errors` property (i.e. assign the array 
+    to such `errors` property) and then send the whole object back to the react app client, it then being a response in our 
+    common response structure `{ errors: { message: string, field?: string }[] }`.
+    */
+    return this.errors.map((err) => {
+      return { message: err.msg, field: err.param };
+    });
   }
 }

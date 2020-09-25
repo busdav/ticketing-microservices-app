@@ -21,25 +21,16 @@ export const errorHandler = (
   next: NextFunction
 ) => {
   if (err instanceof RequestValidationError) {
-    /* We know that a RequestValidationError has a prop of `errors` which is an array of objects. 
-    What we are doing here is to map over that array, in other words, create and return a new array with the following entries:
-    each entry will be an object with `message` and `field` properties. 
-    I.e., we prepare the "inner" part of our common response structure, for us to then be able to  send back to the react app client 
-    a response in our common response structure.
-    */
-    const formattedErrors = err.errors.map((error) => {
-      return { message: error.msg, field: error.param };
-    });
     /* 
     `Return` as we want to return and exit early. Here, we create the "outer" part of our common response structure, i.e., 
      we take the array objects `formattedErrors` and assign it as a property to the `errors` property of the object that we are going
      to send back to the client.
     */
-    return res.status(400).send({ errors: formattedErrors });
+    return res.status(err.statusCode).send({ errors: err.serializeErrors() });
   }
 
   if (err instanceof DatabaseConnectionError) {
-    return res.status(500).send({ errors: [{ message: err.reason }] });
+    return res.status(err.statusCode).send({ errors: err.serializeErrors() });
   }
 
   res.status(400).send({
