@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { RequestValidationError } from "../errors/request-validation-error";
-import { DatabaseConnectionError } from "../errors/database-connection-error";
+import { CustomError } from "../errors/custom-error";
 /*
 Given that our react app could receive error msg from many different services written in different languages, we need to make sure that 
 all error messages coming out of a service have the same format and structure. Therefore, we pass any error in our Express app
@@ -20,16 +19,12 @@ export const errorHandler = (
   res: Response,
   next: NextFunction
 ) => {
-  if (err instanceof RequestValidationError) {
+  if (err instanceof CustomError) {
     /* 
     `Return` as we want to return and exit early. Here, we create the "outer" part of our common response structure, i.e., 
      we take the array objects `formattedErrors` and assign it as a property to the `errors` property of the object that we are going
      to send back to the client.
     */
-    return res.status(err.statusCode).send({ errors: err.serializeErrors() });
-  }
-
-  if (err instanceof DatabaseConnectionError) {
     return res.status(err.statusCode).send({ errors: err.serializeErrors() });
   }
 

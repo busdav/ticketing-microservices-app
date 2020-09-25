@@ -1,5 +1,6 @@
 // Differentiate between `ValidationError` from express-vaidator and our self-made `RequestValidationError`
 import { ValidationError } from "express-validator";
+import { CustomError } from "./custom-error";
 
 /* 
 An alternative to the approach used here with the Abstract Class would be to define an interface 
@@ -21,7 +22,7 @@ also create a class when compiled to JS, which is useful in our circumstances. F
 they cannot be instantiated, but, as said, can be used to set up requirements for subclasses. 
 */
 
-export class RequestValidationError extends Error {
+export class RequestValidationError extends CustomError {
   statusCode = 400;
   /*
   Note that here we are using TS parameter properties. Paramater properties let us create and initialize class member variables in one place. 
@@ -41,7 +42,8 @@ export class RequestValidationError extends Error {
   and TS type definition with `:`
   */
   constructor(public errors: ValidationError[]) {
-    super();
+    // Because we're defining a subclass of `CustomError`, we must call super();
+    super("Invalid request parameters");
 
     /* 
     Next line needed is needed to make our sub-class work correctly, ONLY needed because we are extending a BUILT IN class (Error). 
