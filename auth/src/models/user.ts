@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 /* 
 An interface that descibes the properties that are required to create a new user. We need this because TS and mongoose do not work 
-together really well - even though we installed the @types/mongoose file, mongoose has no idea, after creating the userSchema, 
+together really well - even though we installed the @types/mongoose file, TS has no idea, after creating the userSchema, 
 that we are expecting two properties for a new user, email and password, and that they're both strings (note that the `String`
 in the userSchema has nothing to do with TS - it refers to the JS string constructor and is required by mongoose).
 */
@@ -44,12 +44,22 @@ const userSchema = new mongoose.Schema({
 /*
 Related to what we mentioned above - trick to make TS and mongoose work together. Everytime we want to create a new user, instead of 
 calling `new User()`, we're going to call the below builder function `User.buildUser`, just so that we can have TS check that we're 
-passing the right attributes. 
+passing the right attributes. The `User.buildUser` we add through `.statics`, and TS ALLOWS us to do so because we told TS
+about the `build` property in the interface above, see above. 
 */
 userSchema.statics.build = (attrs: UserAttrs) => {
   return new User(attrs);
 };
 
+/*
+The part in angle brackets: this is TS's `generic syntax` or `generics`. This is essentially "functions for types". 
+You can think of the two items as "arguments to the function of `model`". But instead of being a dataype or an actual value, 
+it is a TYPE. So, you can think of these as types being provided to a function as arguments, allowing us to customize the 
+types being used inside a function, a class, or an interface. 
+If we command-click on .model, we get to the type definition for the .model function. We can see that we can pass 
+two generics to the function, `T extends Document`, and `U extends Model`. We also see that U is being used to indicate
+what the function will return. So, below we're specifying that the .model function's return value should be of type `UserModel`. 
+*/
 const User = mongoose.model<UserDoc, UserModel>("User", userSchema);
 
 export { User };

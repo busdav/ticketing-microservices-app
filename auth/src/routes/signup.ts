@@ -5,8 +5,8 @@ explicit type annotations.
 */
 import express, { Request, Response } from "express";
 import { body, validationResult } from "express-validator";
+import { User } from "../models/user";
 import { RequestValidationError } from "../errors/request-validation-error";
-import { DatabaseConnectionError } from "../errors/database-connection-error";
 
 const router = express.Router();
 
@@ -31,12 +31,28 @@ router.post(
       throw new RequestValidationError(errors.array());
     }
 
+    /* 
+    Desctructuring assignment syntax. What we extract is the key + value, i.e. `{ email: 'test@test.com' }`. 
+    This is what is printed out if we console.log `{ email }`.
+    If we console.log({ email, password }), then printed out is `{ email: 'test@test.com', password: 'mypassword' }`. 
+    We can also just console.log `email` and get the string `test@test.com`. 
+    Destructuring assignment syntax also works with arrays, and with nested objects/arrays. 
+    Of course, with mongoose, we want to send an object, e.g. `User.findOne({ email })`, meaning "find me a user where `email` is 
+    `test@test.com`" - just a string as in "test@test.com" obviously won't work. 
+    */
     const { email, password } = req.body;
 
-    console.log("Creating a user...");
-    throw new DatabaseConnectionError();
+    const existingUser = await User.findOne({ email });
 
-    res.send({});
+    if (existingUser) {
+      console.log("Email in use");
+      return res.send({});
+    }
+
+    const user = User.build({ email, password });
+    await user.save();
+
+    res.status(201).send(user);
   }
 );
 
