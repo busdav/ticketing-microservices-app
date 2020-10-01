@@ -26,13 +26,16 @@ export class RequestValidationError extends CustomError {
   statusCode = 400;
   /*
   Note that here we are using TS parameter properties. Paramater properties let us create and initialize class member variables in one place. 
-  It is a shorthand for creating member variables. So, instead of, outside the constructor, putting the type definition 
-  `private _errors: ValidationError[]` (read: "ValidationError array"), then
-  having the constructur be `constructor(errors: ValidationError[])` (i.e. defining arguments including defining their type) and, 
-  inside the constructor, putting `this._errors = errors`, 
-  we simply put the keyword `private` directly in the parameters of the constructor in order to make user of parameter properties:  
-  `constructor(private _errors: ValidationError[])`. 
-  With either, what we are doing is, we are taking the property `_errors`, and assigning it as a property to the overall class.
+  It is a shorthand for creating member variables. So, instead of saying
+  `
+  private _errors: ValidationError[]   // (read: "ValidationError array") 
+
+  constructor(errors: ValidationError[]) {   // (i.e. defining constructor arguments including defining their type) 
+    this._errors = errors;
+  `
+  , we simply put the keyword `private` (or `public` if we wanted to) directly in the parameters of the constructor 
+  in order to make use of parameter properties, see below. 
+  With either approach, what we are doing is, we are taking the property `_errors`, and assigning it as a property to the overall class.
   Note: if you look at DatabaseConnectionError, there, outside the constructor, we have a hard-coded property `reason`. Note the difference there:
   This is an *assignment* of a class member variable. It being hard-coded, we do not need any argument/parameter input from the constructor; 
   therefore, we are defining and assigning this member variable OUTSIDE the constructor. Also, we're making use of TS type inference there:
