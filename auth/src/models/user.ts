@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { Password } from "../services/password";
 
 /* 
 An interface that descibes the properties that are required to create a new user. We need this because TS and mongoose do not work 
@@ -39,6 +40,31 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+});
+
+/*
+Below is a middleware function implemented in mongoose. Anytime we're going to attempt to save a user to our db, we're going to implement
+this function. 
+What is `done`? Mongoose doesn't yet have great support OOTB of async await, so, is still doing things a bit the 
+old way. That's why, when we want to run any asynchronous code inside the callback function that is a parameter to 
+`.pre()`, we get the `done` argument. We are responsible to tell mongoose when we've done all the work we wanted to do inside 
+this callback function by calling `done()`. 
+Why are we not using arrow function, i.e. `async (done) => {}`? Reason: anytime we put together a mognoose middleware function, we
+get access to the document that is being saved, so the actual user we're trying to persist to the db, as `this` inside of the 
+callback function. If we used an arrow function, then the value of `this` inside the callback would be overridden, and would be instaed
+equal to the context of this entire file (`user.ts`), as opposed to the user document - which is not what we want. 
+*/
+userSchema.pre("save", async function (done) {
+  /* 
+  We want to check for the case where we retrieve a user from the db and then save it back to db, without changes to the password
+  (e.g. change email). If we ran this middleware in such case, we would rehash a password that's already hashed - not what we want.
+  (Mongoose will also qualify a password being supplied for the first time as `modified`.)
+  */
+  if (this.isModified("password")) {
+    const hashed = await Password.toHash(this.get("password"));
+    this.set("password", hashed);
+  }
+  done();
 });
 
 /*
