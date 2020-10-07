@@ -5,6 +5,7 @@ explicit type annotations.
 */
 import express, { Request, Response } from "express";
 import { body, validationResult } from "express-validator";
+import jwt from "jsonwebtoken";
 import { User } from "../models/user";
 import { RequestValidationError } from "../errors/request-validation-error";
 import { BadRequestError } from "../errors/bad-request-error";
@@ -51,6 +52,25 @@ router.post(
 
     const user = User.build({ email, password });
     await user.save();
+
+    // Generate JWT
+    const userJwt = jwt.sign(
+      {
+        id: user.id,
+        email: user.email,
+      },
+      "asdf"
+    );
+    /*
+    Store JWT on session object. The cookieSession library is going to take the `.jwt` object, 
+    serialize it, and then send it back to the user's browser. 
+    Because we're using TS, we can't just define a new property on the req.session object, such as 
+    `req.session.jwt = userJwt`. The @types/jsonwebtoken is telling TS that there is `req.session`, but doesn't tell it about `.jwt`, 
+    since that's custom, coming from us. Therefore, we're just redefining the whole object in this case, and set it on `req.session`.  
+    */
+    req.session = {
+      jwt: userJwt,
+    };
 
     res.status(201).send(user);
   }

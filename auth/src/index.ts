@@ -9,6 +9,7 @@ We want to avoid that as `next` can be complex to understand.
 */
 import "express-async-errors";
 import mongoose from "mongoose";
+import cookieSession from "cookie-session";
 
 import { currentUserRouter } from "./routes/current-user";
 import { signinRouter } from "./routes/signin";
@@ -18,7 +19,26 @@ import { errorHandler } from "./middlewares/error-handler";
 import { NotFoundError } from "./errors/not-found-error";
 
 const app = express();
+/*
+Traffic is being proxied to our app through ingress nginx, so we want to tell express app that that's okay: 
+*/
+app.set("trust proxy", true);
 app.use(express.json());
+app.use(
+  cookieSession({
+    /* 
+    We'll turn off encryption of the cookie, because what we will put into the cookie, the JWT, is already encrypted, and we want all 
+    microservices to be easily able to read the cookie without having to worry about the microservices (that may be built with 
+    different languages) being able to decrypt correctly. 
+    */
+    signed: false,
+    /*
+    We will only allow cookies to be placed if the user is on an https connection: (if testing with Postman, remember to manually 
+    put https, as Postman defaults to http)
+    */
+    secure: true,
+  })
+);
 
 app.use(currentUserRouter);
 app.use(signinRouter);
