@@ -58,6 +58,13 @@ const start = async () => {
   the file. 
   */
   /*
+  Here, we want to make sure that, as soon as the app starts up (rather than just upon deployment), if there are env vars missing, 
+  an error is thrown. 
+  */
+  if (!process.env.JWT_KEY) {
+    throw new Error('JWT_KEY must be defined');
+  }
+  /*
   The connection URL usually takes the form of "mongodb://[DOMAIN]" (e.g. if running mongo locally: "mongodb://localhost"). 
   Here of course, we need to connect to our MongoDB instance running in the pod that our depl created, or rather, 
   to the clusterIP service belonging to that pod. We simply put the name of that service where we would normally put the domain, 

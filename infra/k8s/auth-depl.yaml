@@ -29,6 +29,13 @@ spec:
           # That gives kubernetes ("k8s") the instruction to go to docker hub and look for latest version.
           # If however we put a specific version, k8s will use that one if it finds it on the machine it is running on.
           image: us.gcr.io/ticketing-dev-udemy-289609/auth
+          env:
+            # This will be name of the environment variable as it shows up inside of the auth container:
+            - name: JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: JWT_KEY
 
 # Whenever you create a deployment, you usually also want to create a cluster IP Service (which is a Kubernetes service),
 # in order to give you access to a pod *from within your cluster*.

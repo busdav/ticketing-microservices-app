@@ -59,7 +59,8 @@ router.post(
         id: user.id,
         email: user.email,
       },
-      "asdf"
+      // We use a bang below to ignore a TS error we would otherwise get. (see onenote notes on why).
+      process.env.JWT_KEY!
     );
     /*
     Store JWT on session object. The cookieSession library is going to take the `.jwt` object, 
