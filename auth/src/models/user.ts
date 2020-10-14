@@ -39,7 +39,29 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
-  },
+  }
+}, { 
+  /*
+  Just as with error messages, we want to make sure that our frontend always gets the same formatting from all microservices, i.e.
+  we want to implement common response properties for all of our microservices. 
+  To do so, we can define how mongoose (and also JS) convert an object to JSON. 
+  In JS: `JSON.stringify(foobarObject)` by default converts keys and values into strings. However, we can override that by defining
+  a `toJSON()` funtion inside the object, like so: `const person = { name: "alex", toJSON() { return 1; } };`. If we run 
+  `JSON.stringify(person)`, we get back 1. 
+  The same is possible with mongoose, just implemented a little differently: we don't define a function, but an object with config
+  options, that's going to help mongoose to take our user document and turn it into JSON. Remember, you get to the TS type
+  definitions (and therefore the documentation) by command clicking on toJSON and then documentToObjectOptions. 
+  Note that doing this in the model file is not very common, as this (in MVC) is a view related task. But we're doing it here. 
+  */
+  toJSON: {
+    transform(doc, ret) {
+      ret.id = ret._id;
+      delete ret._id;
+      delete ret.password;
+      // Alternatively to the below, we could also set the versionKey property to false
+      delete ret.__v;
+    }
+  }
 });
 
 /*
