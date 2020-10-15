@@ -1,13 +1,14 @@
 /* 
-`{ Request, Response }`: needed to import that from the @types/express package. Reason: after inserting the express-validator
-middleware function, typescript couldn't do the type inference anymore for `req` and `res`, so threw an error. Therefore, we needed to put
-explicit type annotations. 
+`{ Request, Response }`: these are TYPES. needed to import that from the @types/express package. 
+Reason: after inserting the express-validator middleware function, typescript couldn't do the type inference 
+anymore for `req` and `res`, so threw an error. Therefore, we needed to put explicit type annotations. 
 */
 import express, { Request, Response } from "express";
-import { body, validationResult } from "express-validator";
+import { body } from "express-validator";
 import jwt from "jsonwebtoken";
+
+import { validateRequest } from "../middlewares/validate-request";
 import { User } from "../models/user";
-import { RequestValidationError } from "../errors/request-validation-error";
 import { BadRequestError } from "../errors/bad-request-error";
 
 const router = express.Router();
@@ -26,13 +27,12 @@ router.post(
       .isLength({ min: 4, max: 20 })
       .withMessage("Password myst be between 4 and 20 characters"),
   ],
+  /*
+  Following the above validation, we now call our custom validation middleware that we abstracted into validate-request.ts 
+  `validateRequest` will throw an error where appropriate, depending on the express-validator's `validationResult`.
+  */
+  validateRequest,
   async (req: Request, res: Response) => {
-    const errors = validationResult(req);
-
-    if (!errors.isEmpty()) {
-      throw new RequestValidationError(errors.array());
-    }
-
     /* 
     Desctructuring assignment syntax. What we extract is the key + value, i.e. `{ email: 'test@test.com' }`. 
     This is what is printed out if we console.log `{ email }`.
