@@ -10,7 +10,14 @@ router.get("/api/users/currentuser", (req, res) => {
     return res.send({ currentuser: null });
   }
 
-  const payload = jwt.verify(req.session.jwt, process.env.JWT_KEY!);
+  // If someone has altered the JWT, then `jwt.verify` will throw an error. We need to make sure to capture that error.
+  // -> try/catch
+  try {
+    const payload = jwt.verify(req.session.jwt, process.env.JWT_KEY!);
+    res.send({ currentUser: payload });
+  } catch (err) {
+    res.send({ currentuser: null });
+  }
 });
 
 export { router as currentUserRouter };
