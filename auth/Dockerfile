@@ -11,7 +11,8 @@ WORKDIR /app
 # we separate that step out and first ONLY copy package.json and run npm install. This way, the cache will be used for the node modules, 
 # speeding up the rebuild process. 
 COPY package.json .
-RUN npm install
+# We don't want docker to install the --save-dev dependencies, could take a long time (e.g. mongodb-memory-server)
+RUN npm install --only=prod
 COPY . .
 
 # Set default command for image, i.e. tell the image what to do when it starts as a container
