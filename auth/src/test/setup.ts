@@ -1,11 +1,12 @@
 import { MongoMemoryServer } from "mongodb-memory-server";
-import mongoose, { mongo } from "mongoose";
+import mongoose from "mongoose";
 import { app } from "../app";
 
 // We need to define this outside of the scope of beforeAll, as we also need to reference it in afterAll
 let mongo: any;
 
 beforeAll(async () => {
+  process.env.JWT_KEY = "asdfasdf";
   mongo = new MongoMemoryServer();
   const mongoUri = await mongo.getUri();
 
