@@ -33,9 +33,11 @@ app.use(
     signed: false,
     /*
     We will only allow cookies to be placed if the user is on an https connection: (if testing with Postman, remember to manually 
-    put https, as Postman defaults to http)
+    put https, as Postman defaults to http). 
+    Also note that supertest makes plain http requests. That means that when we are in the node environment `test`, we don't want 
+    to have `secure` be `true`, but `false`, like below. Note that jest will set the env to "test" everytime it runs its tests. 
     */
-    secure: true,
+    secure: process.env.NODE_ENV !== "test",
   })
 );
 
