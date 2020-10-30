@@ -14,13 +14,15 @@ spec:
       # The whole label/selector system is very similar to HTML tags
       # The key could be anything really. `app` doesn't have a specific meaning.
       app: auth
-  # Template for the pods - essentially a the content of a pod config file:
+  # Template for the pods - essentially the content of a pod config file; defines how every pod that is created and managed
+  # by this deployment is going to look like and should behave:
   template:
     metadata:
       # This ties in with `matchLabels` selector spec above - i.e. the Deployment is going to create pods with the label app: auth
       # (and these are the ones that the selector above will find)
       labels:
         app: auth
+    # Spec defines how every pod that is created and managed by this deployment is going to behave:
     spec:
       containers:
         # dash means that the following is an array entity
