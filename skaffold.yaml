@@ -51,3 +51,11 @@ build:
             # Destination: where to sync this file to inside of our running containter. The '.' means essentially means 'just take wherever this file was
             # found from, and through it into the corresponding path inside the container'.
             dest: .
+    - image: us.gcr.io/ticketing-dev-udemy-289609/client
+      context: client
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "**/*.js"
+            dest: .

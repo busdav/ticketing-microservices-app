@@ -51,11 +51,14 @@ kind: Service
 metadata:
   name: auth-srv
 spec:
+  # The selector is how the service is going to find the pods that the service is supposed to govern requests to.
   selector:
     app: auth
   # By default, K8s will create a type of ClusterIP, so next line is optional
   type: ClusterIP
+  # Now we specify the list of ports that we want to allow access to:
   ports:
+    # Name of the port is not super important - is more for logging and reporting purposes.
     - name: auth
       protocol: TCP
       # Port of the k8s service that we're configuring:

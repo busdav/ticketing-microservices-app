@@ -26,8 +26,14 @@ spec:
         paths:
           # The routing configuration we specify below is going to be interpreted by nginx. nginx does not support the `:id` wildcard.
           # If we want that, it needs to be RegEx. For that, we need to add the regex annotation (see above).
-          # The standard wildcard route `/?(.*)` for the react app needs to be at the end.
+          # Note: whenever a request comes in to ingress nginx, it is going to try and match the path of the incoming request to the paths
+          # in our paths array *in order*. Therefore, the wildcard / catch-all path of our client needs to come last, and all specific
+          # paths for our APIs need to come before.
           - path: /api/users/?(.*)
             backend:
               serviceName: auth-srv
+              servicePort: 3000
+          - path: /?(.*)
+            backend:
+              serviceName: client-srv
               servicePort: 3000

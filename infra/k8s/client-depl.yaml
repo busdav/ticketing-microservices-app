@@ -15,3 +15,17 @@ spec:
       containers:
         - name: client
           image: us.gcr.io/ticketing-dev-udemy-289609/client
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: client-srv
+spec:
+  selector:
+    app: client
+  ports:
+    - name: client
+      protocol: TCP
+      port: 3000
+      # Next.js by default listens on port 3000, that's why we're selecting 3000 here
+      targetPort: 3000
