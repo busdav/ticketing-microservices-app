@@ -21,6 +21,8 @@ const start = async () => {
   to the clusterIP service belonging to that pod. We simply put the name of that service where we would normally put the domain, 
   plus the port, plus the name of the actual database inside there that we want to connect to (will be created if non-existant), 
   plus an options object.
+  If we wanted to use this app in production, a hosted DB such as MongoDB Atlas would probably be better than the self-hosted
+  solution we're building here, were DB is self-hosted within a container/pod. 
   */
   try {
     await mongoose.connect("mongodb://auth-mongo-srv:27017/auth", {
