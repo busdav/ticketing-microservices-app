@@ -25,7 +25,7 @@ router.post(
     body("password")
       .trim()
       .isLength({ min: 4, max: 20 })
-      .withMessage("Password myst be between 4 and 20 characters"),
+      .withMessage("Password must be between 4 and 20 characters"),
   ],
   /*
   Following the above validation, we now call our custom validation middleware that we abstracted into validate-request.ts 

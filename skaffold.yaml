@@ -36,10 +36,10 @@ build:
         dockerfile: Dockerfile
       sync:
         # Skaffold can monitor "synced" and "unsynced" files.
-        # Synced: = listed in the "synced" section of the skaffold config file. is usually what we have in our src directory - we tell skaffold,
+        # Synced: = listed in the "sync" section of the skaffold config file. is usually what we have in our src directory - we tell skaffold,
         # "any changes to those files, just sync it to the respective pod". Means, no rebuild - just take the update file and stick it
-        # directly into the updated pod.
-        # Unsynced: = not listed in the "synced" section of the skaffold config file. These are the files where we want the Docker image to be rebuilt
+        # directly into the updated pod (more exactly, probably into the running container, no?)
+        # Unsynced: = not listed in the "sync" section of the skaffold config file. These are the files where we want the Docker image to be rebuilt
         # upon changes (e.g. package.json). If we're using a VM on GCP rather than our local machine, skaffold is going to upload all of our src code
         # to Google Cloud Build, along with Dockerfile, will run Docker Builder, get an updated image, and will then tell the Deployments on the
         # relevant Node we've created on our VM on GCP, that there is a new image available. The Deployment will then restart all of its pods
