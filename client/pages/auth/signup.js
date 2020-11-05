@@ -1,29 +1,31 @@
 // Next.js: by creating a folder `auth` and a file `signup.js`, Next is going to create a route `auth/signup`
 // inside of our application. Now, all we have to do is define and export a react component from this file.
 import { useState } from "react";
-import axios from "axios";
+import Router from "next/router";
+import useRequest from "../../hooks/use-request";
 
 export default () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errors, setErrors] = useState([]);
+  // We want to make use of useRequest now - remember that when we call it, we will get back an object with the elements
+  // `doRequest` and `errors`:
+  const { doRequest, errors } = useRequest({
+    url: "/api/users/signup",
+    method: "post",
+    body: {
+      email,
+      password,
+    },
+    // `onSuccess` is an additional argument we've defined in our useRequest hook.
+    // It is a callback that shall be invoked anytime a request is made successfully.
+    onSuccess: () => Router.push("/"),
+  });
 
   const onSubmit = async (event) => {
     // We want to make sure that the form does not try to submit itself through the browser (with reload)
     event.preventDefault();
 
-    // To capture errors and display them to the user, we're going to wrap this into a try catch statement:
-    try {
-      const response = await axios.post("/api/users/signup", {
-        email,
-        password,
-      });
-      console.log(response.data);
-    } catch (err) {
-      // We saw that, as expected, when we console.logged the `err.response.data`, we saw an errors array. So, we can now
-      // assign that errors array to the `errors` piece of state, and then use it in our form to display it to the user.
-      setErrors(err.response.data.errors);
-    }
+    await doRequest();
   };
 
   return (
@@ -47,16 +49,7 @@ export default () => {
           className="form-control"
         />
       </div>
-      {errors.length > 0 && (
-        <div className="alert alert-danger">
-          <h4>Ooops....</h4>
-          <ul className="my-0">
-            {errors.map((err) => (
-              <li key={err.message}>{err.message}</li>
-            ))}
-          </ul>
-        </div>
-      )}
+      {errors}
       <button className="btn btn-primary">Sign Up</button>
     </form>
   );
