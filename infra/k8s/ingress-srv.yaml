@@ -1,23 +1,39 @@
-# The ingress-nginx Ingress Controller we need to install separately into the cluster on our local machine. This present file is the config file
-# for such controller. Once installed in our local cluster, the ingress-nginx Ingress Controller will stay installed
-# (even when you stop skaffold for instance) unless we manually uninstall it. Once installed the controller is going to continuously scan
-# all the different config files we're throwing into the Cluster.
+# The ingress-nginx Ingress Controller we need to install separately into the cluster on our local machine (or GKE if we're using GKE).
+# This present file is the config file for such controller. Once installed in our local cluster, the ingress-nginx Ingress Controller
+# will stay installed (even when you stop skaffold for instance) unless we manually uninstall it.
+# Once installed the controller is going to continuously scan all the different config files we're throwing into the Cluster.
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: ingress-service
-  # The first annotation below will help the Ingress Controller understand that we're trying to feed it some routing rules.
+  # The `kubernetes.io/ingress.class: nginx` annotation below will help the Ingress Controller understand that
+  # we're trying to feed it some routing rules.
   annotations:
     kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
-  # `rules` will have the actual routing rules to apply to outside world incoming traffic, within the cluster.
+  # `rules` will have the actual routing rules that the Ingress controller is supposed to  apply to outside world incoming traffic,
+  # within the cluster.
   rules:
     # `host` will tell the Ingress Controller which app the rules apply to. Because, k8s is assuming that there could be several apps within one
-    # cluster. Now, how do we translate this into our local dev environment? We need to trick our local machine into thinking that
-    # whenever we say 'go to ticketing.dev', local machine needs to go to localhost ->
-    # This is done via a config change in our local `/etc/hosts` file (add `127.0.0.1 ticketing.dev`)
+    # cluster. So, if a request comes in, then the Ingress controller will inspect the domain and then apply the rules that have been
+    # specified for that domain. For instance, if a request comes from the host `ticketing.dev` with route `/api/users/currentuser`, i.e.
+    # `ticketing.dev/api/users/currentuser`, then the Ingress controller will apply the rules we specified for `host: ticketing.dev` below,
+    # and route the request to the clusterIP service of the appropriate pod.
+    # Now, the request comes from another domain, such as the one we have to use in `getInitialProps` when it is executed on the server
+    # (`http://ingress-nginx-controller.ingress-nginx.svc.cluster.local/api/users/currentuser`, see index.js), then
+    # Ingress controller has no idea what domain the request is trying to access, and therefore, no idea what set of rules to use,
+    # and will therefore throw a 404. What do we do? Relatively simple: we simply add to the request above an options object and specify
+    # { headers: { Host: "ticketing.dev" }}, and then the Ingress controller will know. Or, we can simply pass on ALL the headers of the
+    # incoming request, i.e. the request that came from the browser to index.js and its `getInitialProps`, by adding `{ headers: req.headers }`
+    # to the axios request.
+    # Now, how do we translate the `ticketing.dev` host into our local dev environment (or GKE if we're using it)?
+    # We need to trick our local machine into thinking that whenever we say 'go to ticketing.dev', local machine needs to go to localhost
+    # (or, if we're using GKE, the IP address of the GKE cluster) ->
+    # This is done via a config change in our local `/etc/hosts` file (add `127.0.0.1 ticketing.dev` if it should go to localhost, and
+    # `35.187.162.139 ticketing.dev`, as an example, if it should go to a GKE cluster).
     # The ticketing.dev url could be anything - chosen here as it seems semantic.
+    # As we are not specifying a particular port, the default port (port 80) will be used, so request will be forwarded to 127.0.0.1:80
     # Note that if you try to access, in Chrome, http://ticketing.dev/api/users/currentuser, for instance, it will throw you the "Your connection
     # is not private" error (because the nginx server uses a self-signed certificate). Now, due to the nginx ingress settings, we are UNABLE to dismiss
     # the error through the "Advanced" tab. What we can do is click into the page anywhere and then type "thisisunsafe", which will let us pass.
@@ -25,7 +41,7 @@ spec:
       http:
         paths:
           # The routing configuration we specify below is going to be interpreted by nginx. nginx does not support the `:id` wildcard.
-          # If we want that, it needs to be RegEx. For that, we need to add the regex annotation (see above).
+          # If we want that, it needs to be RegEx. For that, we need to add the regex annotation.
           # Note: whenever a request comes in to ingress nginx, it is going to try and match the path of the incoming request to the paths
           # in our paths array *in order*. Therefore, the wildcard / catch-all path of our client needs to come last, and all specific
           # paths for our APIs need to come before.

@@ -1,28 +1,27 @@
-import axios from "axios";
+import buildClient from "../api/build-client";
 
-const LandingPage = ({ color }) => {
-  console.log("I am in the component", color);
+// The argument to this function will be an object that will contain the currentUser object (`data`, see below). So
+// we're going to destructure the `currentUser` property from such object.
+const LandingPage = ({ currentUser }) => {
+  console.log(currentUser);
   return <h1>Landing page</h1>;
 };
 
-/*
-`getInitialProps` is specific to NextJS. If we decide to implement it, then Next.js is going to call this function while it
-is attemptig to render our initial application on the server. So, getInitialProps is our opportunity to fetch some data that
-this component needs during this server side rendering process. Any data returned from getInitialProps, usually an object, 
-is going to be provided to our component as a prop, and so, we can access it from within the component.
-(We could not do it DIRECTLY from within the component during initial rendering; only subsequently.)
-Next.js is then going to assemble HTML from all components, and send back the response. 
-Note that all of our components are rendered just one single time. So we cannot make a request and wait for a response 
-and possibly update some state. Instead, each of our components during server side rendering SSR are 
-just rendered once, we take the result, and that's what's going to be sent to the user. 
-So, getInitialProps allows us to get some data for the initial rendering of our app. 
-Note 2: getInitialProps is a plain function, NOT A COMPONENT. That's why we cannot use the `useRequest` hook we made, 
-because hooks are used only within components. 
-*/
-LandingPage.getInitialProps = () => {
-  console.log("I am on the server");
-
-  return { color: "red" };
+// The first argument to this function is usually referred to as `context`.
+LandingPage.getInitialProps = async (context) => {
+  /*
+  Note that `buildClient(context)` just gives returns the pre-configured axios instance, on which we can then chain on the 
+  actual request we want to make using axios. 
+  */
+  const client = buildClient(context);
+  const { data } = await client.get("/api/users/currentuser");
+  /*
+  Given our backend, we expect the `data` property of our `response` object to be an object that has a `currentUser` property
+  whose value is either an object or null. So, now that we've returned such object in this getInitialProps,
+  we should now have access to `currentUser` (desctructured) as a property to our component, see above.
+  We can (as we've done) destructure `response` into `{ data }`, so that we don't need to return `response.data`. 
+  */
+  return data;
 };
 
 export default LandingPage;

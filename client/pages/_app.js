@@ -1,7 +1,7 @@
 import "bootstrap/dist/css/bootstrap.css";
 
 export default ({ Component, pageProps }) => {
-  /* Whenever you try to navigate to some distinct page with next.js, next.js is going to import your component from one of the 
+  /* Whenever you try to navigate to some distinct page with Next.js, Next.js is going to import your component from one of the 
   files in the pages directory. However, Next doesn't just display your component however. Instead, it wraps it up inside 
   its own custom default component (referred to inside of Next as the `_app` component). So, if we had a "banana.js" page inside
   our pages directory, that banana component would be imported and passed into the `_app` component as the 
