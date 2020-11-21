@@ -3,8 +3,11 @@ import buildClient from "../api/build-client";
 // The argument to this function will be an object that will contain the currentUser object (`data`, see below). So
 // we're going to destructure the `currentUser` property from such object.
 const LandingPage = ({ currentUser }) => {
-  console.log(currentUser);
-  return <h1>Landing page</h1>;
+  return currentUser ? (
+    <h1>You are signed in</h1>
+  ) : (
+    <h1>You are NOT signed in</h1>
+  );
 };
 
 // The first argument to this function is usually referred to as `context`.
