@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: client
-          image: us.gcr.io/ticketing-dev-udemy-289609/client
+          image: us.gcr.io/ticketing-dev-udemy-300209/client
 ---
 apiVersion: v1
 kind: Service
