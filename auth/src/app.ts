@@ -9,13 +9,15 @@ We want to avoid that as `next` can be complex to understand.
 */
 import "express-async-errors";
 import cookieSession from "cookie-session";
+import {
+  errorHandler,
+  NotFoundError,
+} from "@db-udemy-microservices-ticketing/common";
 
 import { currentUserRouter } from "./routes/current-user";
 import { signinRouter } from "./routes/signin";
 import { signoutRouter } from "./routes/signout";
 import { signupRouter } from "./routes/signup";
-import { errorHandler } from "./middlewares/error-handler";
-import { NotFoundError } from "./errors/not-found-error";
 
 const app = express();
 /*

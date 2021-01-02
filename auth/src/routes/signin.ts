@@ -2,11 +2,13 @@ import express, { Request, Response } from "express";
 // Remember: this is a method that's going to be used as a middleware, to validate incoming data on the body of this POST request.
 import { body } from "express-validator";
 import jwt from "jsonwebtoken";
+import {
+  validateRequest,
+  BadRequestError,
+} from "@db-udemy-microservices-ticketing/common";
 
 import { Password } from "../services/password";
 import { User } from "../models/user";
-import { validateRequest } from "../middlewares/validate-request";
-import { BadRequestError } from "../errors/bad-request-error";
 
 const router = express.Router();
 
