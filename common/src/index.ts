@@ -4,6 +4,7 @@ rather than having to know all the directories INSIDE the module, we import ever
 and then export the whole thing. We do this with the `export` statements below, which first import everything, and then immediately 
 export it. 
 We also must remember to install all dependencies we had in the `auth` microservice before we moved the common code over here, from there. 
+Test change. 
 */
 export * from "./errors/bad-request-error";
 export * from "./errors/custom-error";
