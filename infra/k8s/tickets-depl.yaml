@@ -15,9 +15,12 @@ spec:
     spec:
       containers:
         - name: tickets
-
           image: us.gcr.io/ticketing-dev-udemy-300209/tickets
           env:
+            # Stephen argues that it is not a problem to put this here publicly, as there is no login/username + password associated with it, and it can only be accessed from
+            # within our cluster. If there was a login associated with it, he would put it as a secret, just like the JWT_KEY.
+            - name: MONGO_URI
+              value: "mongodb://tickets-mongo-srv:27017/tickets"
             - name: JWT_KEY
               valueFrom:
                 secretKeyRef:
