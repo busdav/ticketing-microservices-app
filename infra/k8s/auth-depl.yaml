@@ -33,6 +33,8 @@ spec:
           image: us.gcr.io/ticketing-dev-udemy-300209/auth
           env:
             # This will be name of the environment variable as it shows up inside of the auth container:
+            - name: MONGO_URI
+              value: "mongodb://auth-mongo-srv:27017/auth"
             - name: JWT_KEY
               valueFrom:
                 secretKeyRef:

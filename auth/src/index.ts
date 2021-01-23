@@ -15,6 +15,9 @@ const start = async () => {
   if (!process.env.JWT_KEY) {
     throw new Error("JWT_KEY must be defined");
   }
+  if (!process.env.MONGO_URI) {
+    throw new Error("MONGO_URI must be defined");
+  }
   /*
   The connection URL usually takes the form of "mongodb://[DOMAIN]" (e.g. if running mongo locally: "mongodb://localhost"). 
   Here of course, we need to connect to our MongoDB instance running in the pod that our depl created, or rather, 
@@ -25,7 +28,7 @@ const start = async () => {
   solution we're building here, were DB is self-hosted within a container/pod. 
   */
   try {
-    await mongoose.connect("mongodb://auth-mongo-srv:27017/auth", {
+    await mongoose.connect(process.env.MONGO_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
       useCreateIndex: true,
