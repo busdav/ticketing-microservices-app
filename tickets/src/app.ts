@@ -4,6 +4,7 @@ import cookieSession from "cookie-session";
 import {
   errorHandler,
   NotFoundError,
+  currentUser,
 } from "@db-udemy-microservices-ticketing/common";
 import { createTicketRouter } from "./routes/new";
 
@@ -16,6 +17,9 @@ app.use(
     secure: process.env.NODE_ENV !== "test",
   })
 );
+
+// Makes it so that whenever user is authenticated, that will set the req.currentUser property
+app.use(currentUser);
 
 app.use(createTicketRouter);
 
