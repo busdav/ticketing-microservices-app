@@ -52,18 +52,12 @@ Now, TS is telling us that there is no `signin` property on the `global` object,
 That's what we've done with the `declare global` statement at the top. 
 */
 global.signin = async () => {
-  const email = "test@test.com";
-  const password = "password";
-
-  const response = await request(app)
-    .post("/api/users/signup")
-    .send({
-      email,
-      password,
-    })
-    .expect(201);
-
-  const cookie = response.get("Set-Cookie");
-
-  return cookie;
+  // Build a JWT payload. { id, email }
+  // Create the JWT
+  // Build session Object { jwt: MY_JWT }
+  // Turn that sessio into JSON
+  // Take JSON and and encode it as base64
+  // Return a string that's the cookie with the encoded data
 };
+
+express: sess = eyJqd3QiOiJleUpoYkdjaU9pSklVekkxTmlJc0luUjVjQ0k2SWtwWFZDSjkuZXlKcFpDSTZJall3TVdRd05qbGtPR1F6WWpjd01EQXhPR1ZsTm1JM1pTSXNJbVZ0WVdsc0lqb2lZWE5rYkdacmFtRnpaR1pzYTJwQVlYTmtiR1pyYWk1amIyMGlMQ0pwWVhRaU9qRTJNVEkxTVRRNU56TjkuV016UU1fN0o3NnRhbS1iM2RzSVNmOUx4cXB1MC1PUWo2OTFaYzUtRkQ1TSJ9;
