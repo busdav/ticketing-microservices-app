@@ -2,13 +2,20 @@ import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
 import request from "supertest";
 import { app } from "../app";
+import jwt from "jsonwebtoken";
 
 declare global {
   namespace NodeJS {
     interface Global {
-      // signin method returns a Promise, which will eventually resolve itself with a cookie, which, as we can see from hovering on
-      // `cookie` below, is an array of strings - so, that's what we indicate:
-      signin(): Promise<string[]>;
+      /* 
+      What we had in the setup file for the auth microservice (see bottom of file): 
+      The global signin method below returned a Promise, which will eventually resolve itself with a cookie, which, as we can see from hovering on
+      `cookie` below, is an array of strings - so, we had to indicate `signin(): Promise<string[]>;`
+      However, as from the tickets microservice, we don't have access to ("/api/users/signup"), and we don't want to introduce a cross-microservice
+      dependency, we're going to fake a cookie and a session object (see below). This means that the global signing method at the bottom 
+      does no longer return a Promise, so we'll amend it to `signin(): string[];`, and we have to remove the async keywork on the signin method. 
+      */
+      signin(): string[];
     }
   }
 }
@@ -51,13 +58,45 @@ Also note that because we put it in this `setup.ts` file, it will only be availa
 Now, TS is telling us that there is no `signin` property on the `global` object, so we need to add a type definition for it. 
 That's what we've done with the `declare global` statement at the top. 
 */
-global.signin = async () => {
+global.signin = () => {
   // Build a JWT payload. { id, email }
+  const payload = {
+    id: "llk24j124l",
+    email: "test@test.com",
+  };
+
   // Create the JWT
+  const token = jwt.sign(payload, process.env.JWT_KEY!);
+
   // Build session Object { jwt: MY_JWT }
+  const session = { jwt: token };
+
   // Turn that sessio into JSON
+  const sessionJSON = JSON.stringify(session);
+
   // Take JSON and and encode it as base64
+  const base64 = Buffer.from(sessionJSON).toString("base64");
+
   // Return a string that's the cookie with the encoded data
+  // (We have to return it as an array as supertest is expecting all cookies etc. in an array)
+  return [`express:sess=${base64}`];
 };
 
-express: sess = eyJqd3QiOiJleUpoYkdjaU9pSklVekkxTmlJc0luUjVjQ0k2SWtwWFZDSjkuZXlKcFpDSTZJall3TVdRd05qbGtPR1F6WWpjd01EQXhPR1ZsTm1JM1pTSXNJbVZ0WVdsc0lqb2lZWE5rYkdacmFtRnpaR1pzYTJwQVlYTmtiR1pyYWk1amIyMGlMQ0pwWVhRaU9qRTJNVEkxTVRRNU56TjkuV016UU1fN0o3NnRhbS1iM2RzSVNmOUx4cXB1MC1PUWo2OTFaYzUtRkQ1TSJ9;
+// For reference: the original signing method:
+
+// global.signin = async () => {
+//   const email = "test@test.com";
+//   const password = "password";
+
+//   const response = await request(app)
+//     .post("/api/users/signup")
+//     .send({
+//       email,
+//       password,
+//     })
+//     .expect(201);
+
+//   const cookie = response.get("Set-Cookie");
+
+//   return cookie;
+// };
