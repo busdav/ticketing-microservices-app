@@ -19,6 +19,8 @@ const router = express.Router();
 express-validator is a middleware - "in the middle" after request and before our callback function i.e. request handler. The way it works is: 
 It inspects, validates and sanitizes the email and password properties of the request object, and if there is an error, it will 
 append an error object to the request object. This error prop can then be called upon in our request handler, through `validationResult`. 
+So, express-validator itself does not throw any error or anything like that - it's up to you to do something with the error object that
+express-validator appends to the request object. 
 */
 router.post(
   "/api/users/signup",

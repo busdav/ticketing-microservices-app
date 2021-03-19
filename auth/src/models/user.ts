@@ -13,8 +13,10 @@ interface UserAttrs {
 }
 
 /*
-An interface that describes the properties that a User model has. We need to add this so that, under TS, we can add a custom method 
-User.build() to the Model, via userSchema. See comment below as to why we want to do that. 
+An interface that describes the properties that a User model has (because, once created, the DOCUMENT of a new user might have 
+additional properties that were not part of the creation process and therefore not needed in the UserAttrs interface, e.g. createAt).
+We need to add this so that, under TS, we can add a custom method User.build() to the Model, via userSchema. 
+See comment below as to why we want to do that. 
 Essentially, we're taking all the properties that a mongoose Model has (`extends`) and add one more method. 
 */
 interface UserModel extends mongoose.Model<UserDoc> {
@@ -31,17 +33,21 @@ interface UserDoc extends mongoose.Document {
   password: string;
 }
 
-const userSchema = new mongoose.Schema({
-  email: {
-    type: String,
-    required: true,
+const userSchema = new mongoose.Schema(
+  {
+    email: {
+      // As a reminder, here, we're not "talking to" TS; we're talking to mongoose. When we say "type" here, we mean an actual
+      // JS value type; we're referring to the global String constructor in JS => therefore capital "S" for "String".
+      type: String,
+      required: true,
+    },
+    password: {
+      type: String,
+      required: true,
+    },
   },
-  password: {
-    type: String,
-    required: true,
-  }
-}, { 
-  /*
+  {
+    /*
   Just as with error messages, we want to make sure that our frontend always gets the same formatting from all microservices, i.e.
   we want to implement common response properties for all of our microservices. 
   To do so, we can define how mongoose (and also JS) convert an object to JSON. 
@@ -52,17 +58,22 @@ const userSchema = new mongoose.Schema({
   options, that's going to help mongoose to take our user document and turn it into JSON. Remember, you get to the TS type
   definitions (and therefore the documentation) by command clicking on toJSON and then documentToObjectOptions. 
   Note that doing this in the model file is not very common, as this (in MVC) is a view related task. But we're doing it here. 
+  the transform() function takes two args, doc and ret. `ret` is the object that's just about to be turned into JSON. We're going 
+  to make some DIRECT changes to that object. We're not trying to return anything from the function - rather, we're going to 
+  modify ret directly. 
+  We're going to first assign the value of ret._id to ret.id, and then delete ret._id. 
   */
-  toJSON: {
-    transform(doc, ret) {
-      ret.id = ret._id;
-      delete ret._id;
-      delete ret.password;
-      // Alternatively to the below, we could also set the versionKey property to false
-      delete ret.__v;
-    }
+    toJSON: {
+      transform(doc, ret) {
+        ret.id = ret._id;
+        delete ret._id;
+        delete ret.password;
+        // Alternatively to the below, we could also set the versionKey property to false
+        delete ret.__v;
+      },
+    },
   }
-});
+);
 
 /*
 Below is a middleware function implemented in mongoose. Anytime we're going to attempt to save a user to our db, we're going to implement
