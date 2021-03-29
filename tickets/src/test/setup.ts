@@ -61,7 +61,7 @@ That's what we've done with the `declare global` statement at the top.
 global.signin = () => {
   // Build a JWT payload. { id, email }
   const payload = {
-    id: "llk24j124l",
+    id: new mongoose.Types.ObjectId().toHexString(),
     email: "test@test.com",
   };
 
@@ -82,7 +82,7 @@ global.signin = () => {
   return [`express:sess=${base64}`];
 };
 
-// For reference: the original signing method:
+// For reference: the original signin method:
 
 // global.signin = async () => {
 //   const email = "test@test.com";
