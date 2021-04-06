@@ -1,5 +1,8 @@
 import nats from "node-nats-streaming";
 
+// We put this in so we can have a clear console and not so much extra info
+console.clear();
+
 /* 
 We're building a client from the node-nats-streaming library. The client will be what will actually connect to the nats streaming server
 that's running in our cluster and exchange some information with it.
