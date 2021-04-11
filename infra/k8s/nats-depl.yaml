@@ -19,12 +19,15 @@ spec:
           image: nats-streaming:0.17.0
           # args is a list of arguments provided to the primary command that gets executed when our container is built out of our image.
           # We can pass e.g. command line options from the nats streaming server documentation.
-          args:
-            [
+          args: [
               "-p",
               "4222",
               "-m",
               "8222",
+              # "hb" stands for "hearbeat", a little request that NATS will send to all of its connected clients every X seconds (5s in this case).
+              # This is a healthcheck to make sure that these clients are still up and running. `-hbi` defines how often such healtcheck is going to occur.
+              # `-hbt` defines how long the clients have to respond. `-hbf` defines how often the clients are allowed to fail before NATS is going to assume
+              # that that connection is dead and gone.
               "-hbi",
               "5s",
               "-hbt",
