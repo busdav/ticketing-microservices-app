@@ -30,7 +30,7 @@ spec:
           # If we don't add the version number at the end, it means implicitly `busdav/posts:latest`.
           # That gives kubernetes ("k8s") the instruction to go to docker hub and look for latest version.
           # If however we put a specific version, k8s will use that one if it finds it on the machine it is running on.
-          image: us.gcr.io/ticketing-dev-udemy-300209/auth
+          image: us.gcr.io/fleet-parser-310206/auth
           env:
             # This will be name of the environment variable as it shows up inside of the auth container:
             - name: MONGO_URI

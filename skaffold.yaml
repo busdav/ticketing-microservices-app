@@ -19,7 +19,7 @@ build:
   #   push: false
   # In case we use a cluster on GCP, we need to specify the following:
   googleCloudBuild:
-    projectId: ticketing-dev-udemy-300209
+    projectId: fleet-parser-310206
   # Artifacts section tells Skaffold about something inside of our project that it needs to maintain. Essentially, we're saying, e.g. there is
   # going to be a pod that is running code out of our /auth directory (`context`). Whenever something changes inside that directory, Skaffold is going to
   # try and update our pod, in two ways: manual: if it is a JS file, drop the JS file directly into the pod. If it is a different file, just rebuild
@@ -30,7 +30,7 @@ build:
   artifacts:
     # If we use a cluster on GCP, we need to use the image name that GCP will assign to our images, which is structured as follows:
     # (the last part is the name of our project directory) (before GCP, locally, we just used `busdav/auth`)
-    - image: us.gcr.io/ticketing-dev-udemy-300209/auth
+    - image: us.gcr.io/fleet-parser-310206/auth
       context: auth
       docker:
         dockerfile: Dockerfile
@@ -51,7 +51,7 @@ build:
             # Destination: where to sync this file to inside of our running containter. The '.' means essentially means 'just take wherever this file was
             # found from, and through it into the corresponding path inside the container'.
             dest: .
-    - image: us.gcr.io/ticketing-dev-udemy-300209/client
+    - image: us.gcr.io/fleet-parser-310206/client
       context: client
       docker:
         dockerfile: Dockerfile
@@ -59,7 +59,7 @@ build:
         manual:
           - src: "**/*.js"
             dest: .
-    - image: us.gcr.io/ticketing-dev-udemy-300209/tickets
+    - image: us.gcr.io/fleet-parser-310206/tickets
       context: tickets
       docker:
         dockerfile: Dockerfile
