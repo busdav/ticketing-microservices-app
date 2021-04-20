@@ -1,4 +1,4 @@
-import nats, { Message } from "node-nats-streaming";
+import nats, { Message, Stan } from "node-nats-streaming";
 import { randomBytes } from "crypto";
 
 console.clear();
@@ -74,3 +74,53 @@ dead, is still alive and subscribed, and is supposed to get messages.
 */
 process.on("SIGINT", () => stan.close());
 process.on("SIGTERM", () => stan.close());
+
+abstract class Listener {
+  // Abstract properties: means they must be defined by our subclasses
+  abstract subject: string;
+  abstract queueGroupName: string;
+  abstract onMessage(data: any, msg: Message): void;
+  // The below defines `this.client` - whereas the `constructor(client: Stan)` defines the ` = client`, i.e. the argument used inside the function.
+  private client: Stan;
+  // Protected: means subclass can define it if it wants to; 5 seconds
+  protected ackWait = 5 * 1000;
+
+  constructor(client: Stan) {
+    this.client = client;
+  }
+
+  subscriptionOptions() {
+    return (
+      this.client
+        .subscriptionOptions()
+        .setDeliverAllAvailable()
+        .setManualAckMode(true)
+        .setAckWait(this.ackWait)
+        // We're going to use the queueGroupName both as the queue group name and as the durable name - usually makes sense to use the same one for both.
+        .setDurableName(this.queueGroupName)
+    );
+  }
+
+  listen() {
+    const subscription = this.client.subscribe(
+      this.subject,
+      this.queueGroupName,
+      this.subscriptionOptions()
+    );
+
+    subscription.on("message", (msg: Message) => {
+      console.log(`Message received: ${this.subject} / ${this.queueGroupName}`);
+
+      const parsedData = this.parseMessage(msg);
+      this.onMessage(parsedData, msg);
+    });
+  }
+
+  parseMessage(msg: Message) {
+    const data = msg.getData();
+    return typeof data === "string"
+      ? JSON.parse(data)
+      : // In case data is a Buffer: this is how we would parse a Buffer and get some JSON data our of it:
+        JSON.parse(data.toString("utf8"));
+  }
+}
