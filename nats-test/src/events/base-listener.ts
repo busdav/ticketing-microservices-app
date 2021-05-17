@@ -1,10 +1,22 @@
 import { Message, Stan } from "node-nats-streaming";
+import { Subjects } from "./subjects";
 
-export abstract class Listener {
+interface Event {
+  subject: Subjects;
+  data: any;
+}
+
+// We're going to set up `Listener` as a generic class. `<T extends Event> means that whenever we try to make use of `Listener`, i.e. extend it,
+// we have to provide some custom type to it. So, the generic type `<T extends Event>` can be thought of as an argument for types.
+// We can now also refer to type T everywhere inside of our abstract class definition (e.g. `subject: T["subject"];`).
+// This is how we're going to create some pairing between the abstract class and the `Event` interface, and make sure that TS checks that we have a match between
+// subject and data inside of our actual listener.
+// Overall goal: we want TS to help us and check and make sure that we have defined all of our listeners correctly.
+export abstract class Listener<T extends Event> {
   // Abstract properties: means they must be defined by our subclasses
-  abstract subject: string;
+  abstract subject: T["subject"];
   abstract queueGroupName: string;
-  abstract onMessage(data: any, msg: Message): void;
+  abstract onMessage(data: T["data"], msg: Message): void;
   // The below defines `this.client` - whereas the `constructor(client: Stan)` defines the ` = client`, i.e. the argument used inside the function.
   private client: Stan;
   // Protected: means subclass can define it if it wants to; 5 seconds
