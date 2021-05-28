@@ -27,14 +27,21 @@ JSON is a string, so we just convert the object to JSON.
 stan.on("connect", () => {
   console.log("Publisher connected to NATS");
 
-  const data = JSON.stringify({
+  const publisher = new TicketCreatedPublisher(stan);
+  publisher.publish({
     id: "123",
     title: "concert",
     price: 20,
   });
 
-  // First arg: subject name, second arg: event/data we want to share (in NATS world referred to as "message"). The third argument (callback function) is optional.
-  stan.publish("ticket:created", data, () => {
-    console.log("Event published");
-  });
+  // const data = JSON.stringify({
+  //   id: "123",
+  //   title: "concert",
+  //   price: 20,
+  // });
+
+  // // First arg: subject name, second arg: event/data we want to share (in NATS world referred to as "message"). The third argument (callback function) is optional.
+  // stan.publish("ticket:created", data, () => {
+  //   console.log("Event published");
+  // });
 });
