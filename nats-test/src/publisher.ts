@@ -24,15 +24,19 @@ emit a `connect` event. We're going to listen for the `connect` event, with a fu
 We can only share plain strings as events (essentially just raw data). So we need to convert the `data` object to a string. 
 JSON is a string, so we just convert the object to JSON.
 */
-stan.on("connect", () => {
+stan.on("connect", async () => {
   console.log("Publisher connected to NATS");
 
   const publisher = new TicketCreatedPublisher(stan);
-  publisher.publish({
-    id: "123",
-    title: "concert",
-    price: 20,
-  });
+  try {
+    await publisher.publish({
+      id: "123",
+      title: "concert",
+      price: 20,
+    });
+  } catch (err) {
+    console.error(err);
+  }
 
   // const data = JSON.stringify({
   //   id: "123",
