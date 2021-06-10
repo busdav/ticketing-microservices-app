@@ -35,6 +35,7 @@ spec:
               "-hbf",
               "2",
               "-SD",
+              # `-cid` stands for clusterId - this is going to assign an id to the cluster, here, `ticketing`.
               "-cid",
               "ticketing",
             ]
