@@ -7,6 +7,8 @@ import {
   NotAuthorizedError,
 } from "@db-udemy-microservices-ticketing/common";
 import { Ticket } from "../models/ticket";
+import { TicketUpdatedPublisher } from "../events/publishers/ticket-updated-publisher";
+import { natsWrapper } from "../nats-wrapper";
 
 const router = express.Router();
 
@@ -37,6 +39,13 @@ router.put(
     });
     // The above just made updates to the document in memory. It doesn't yet persist those updates to the MongoDB database. For that, I have to call the save() method.
     await ticket.save();
+
+    new TicketUpdatedPublisher(natsWrapper.client).publish({
+      id: ticket.id,
+      title: ticket.title,
+      price: ticket.price,
+      userId: ticket.userId,
+    });
 
     res.send(ticket);
   }
