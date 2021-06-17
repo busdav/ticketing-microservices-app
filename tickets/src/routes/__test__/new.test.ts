@@ -2,6 +2,12 @@ import request from "supertest";
 import { app } from "../../app";
 import { Ticket } from "../../models/ticket";
 
+// We also want to tell jest to use a few mocks instead of the real files, for instance for the natsWrapper, because we don't
+// want to rely on an actual connected NATS client for our tests. (otherwise we'd always have to have a NATS connection running
+// on our local machine). The path for the below is to the file we want to fake, so the original one, not the fake one
+// in the __mocks__ directory.
+jest.mock("../../nats-wrapper");
+
 /* 
 What do we want to test? Probably we want to make sure that there is actually a route handler present
 at /api/tickets that responds to a POST request. We probably want to make sure that there is middleware
