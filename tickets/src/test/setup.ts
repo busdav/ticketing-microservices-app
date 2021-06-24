@@ -42,6 +42,7 @@ beforeAll(async () => {
 });
 
 beforeEach(async () => {
+  jest.clearAllMocks();
   // We tell mongoose to look at all the different connections that exist inside the `mongo` we defined above, established through
   // the `mongoose.connect` command inside of the `beforeAll` hook, and delete all associated collections.
   const collections = await mongoose.connection.db.collections();
