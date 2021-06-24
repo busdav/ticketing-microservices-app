@@ -20,6 +20,13 @@ declare global {
   }
 }
 
+// We also want to tell jest to use a few mocks instead of the real files, for instance for the natsWrapper, because we don't
+// want to rely on an actual connected NATS client for our tests. (otherwise we'd always have to have a NATS connection running
+// on our local machine). The path for the below is to the file we want to fake, so the original one, not the fake one
+// in the __mocks__ directory.
+// Rather than putting this line into each test file individually, we put it here.
+jest.mock("../nats-wrapper");
+
 // We need to define this outside of the scope of beforeAll, as we also need to reference it in afterAll
 let mongo: any;
 
