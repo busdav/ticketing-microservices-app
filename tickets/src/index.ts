@@ -10,10 +10,23 @@ const start = async () => {
   if (!process.env.MONGO_URI) {
     throw new Error("MONGO_URI must be defined");
   }
+  if (!process.env.NATS_CLIENT_ID) {
+    throw new Error("NATS_CLIENT_ID must be defined");
+  }
+  if (!process.env.NATS_URL) {
+    throw new Error("NATS_URL must be defined");
+  }
+  if (!process.env.NATS_CLUSTER_ID) {
+    throw new Error("NATS_CLUSTER_ID must be defined");
+  }
 
   try {
     // The clusterId and url arguments of the natsWrapper.connect method refer back to our nats-deployment and respective service.
-    await natsWrapper.connect("ticketing", "asldkjefh", "http://nats-srv:4222");
+    await natsWrapper.connect(
+      process.env.NATS_CLUSTER_ID,
+      process.env.NATS_CLIENT_ID,
+      process.env.NATS_URL
+    );
     // Even though we have the "heartbeat" healthchecks (see depl file), those checks generally take too long - we want to inform NATS more quickly of when a client
     // is shutting down, so that NATS doesn't wait around trying to still send that client a (then delayed) message. So, we're writing event handlers
     // that will tell NATS immediately that this client is about to shut down and should no longer be sent any messages. See handlers at the bottom.

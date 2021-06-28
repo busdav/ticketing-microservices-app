@@ -17,6 +17,17 @@ spec:
         - name: tickets
           image: us.gcr.io/fleet-parser-310206/tickets
           env:
+            # For the nats cliend id, we're querying the pod name here because, while we need a unique value for the client id, it would be nice if it was a
+            # meaningful value (so that we can inspect our logs and it makes sense etc., vs. just a random id). Well, the pod name is always unique,
+            # so it works nicely to just used the pod name for the client id.
+            - name: NATS_CLIENT_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: NATS_URL
+              value: "http://nats-srv:4222"
+            - name: NATS_CLUSTER_ID
+              value: ticketing
             # Stephen argues that it is not a problem to put this here publicly, as there is no login/username + password associated with it, and it can only be accessed from
             # within our cluster. If there was a login associated with it, he would put it as a secret, just like the JWT_KEY.
             - name: MONGO_URI
