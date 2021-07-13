@@ -20,7 +20,7 @@ router.post(
       // the Ticket service would have a certain format. What if we made changes to the Ticket service in the future, e.g. used no longer Mongodb but a different db?
       // Just to be aware of.)
       .custom((input: string) => mongoose.Types.ObjectId.isValid(input))
-      .withMessage("TicketId muyst be provided"),
+      .withMessage("TicketId muust be provided"),
   ],
   validateRequest,
   async (req: Request, res: Response) => {

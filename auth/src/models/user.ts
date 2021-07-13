@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 import { Password } from "../services/password";
 
 /* 
+We need three interfaces when we create a new model using TS: 
+
 An interface that descibes the properties that are required to create a new user. We need this because TS and mongoose do not work 
 together really well - even though we installed the @types/mongoose file, TS has no idea, after creating the userSchema, 
 that we are expecting two properties for a new user, email and password, and that they're both strings (note that the `String`
@@ -37,7 +39,7 @@ const userSchema = new mongoose.Schema(
   {
     email: {
       // As a reminder, here, we're not "talking to" TS; we're talking to mongoose. When we say "type" here, we mean an actual
-      // JS value type; we're referring to the global String constructor in JS => therefore capital "S" for "String".
+      // JS value type that will be consumed by mongoose; we're referring to the global String constructor in JS => therefore capital "S" for "String".
       type: String,
       required: true,
     },
