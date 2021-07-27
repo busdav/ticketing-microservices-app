@@ -2,6 +2,9 @@ import mongoose from "mongoose";
 import { OrderStatus } from "@db-udemy-microservices-ticketing/common";
 import { TicketDoc } from "./ticket";
 
+// We export OrderStatus from here so that we don't need to import it from the common module in the rest of the files in this service.
+export { OrderStatus };
+
 interface OrderAttrs {
   userId: string;
   // We originally had just the TS type "string", but danger is that if you ever create an event from any service with an order status that is a string,

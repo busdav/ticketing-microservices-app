@@ -107,6 +107,7 @@ Related to what we mentioned above - trick to make TS and mongoose work together
 calling `new User()`, we're going to call the below builder function `User.buildUser`, just so that we can have TS check that we're 
 passing the right attributes. The `User.buildUser` we add through `.statics`, and TS ALLOWS us to do so because we told TS
 about the `build` property in the interface above, see above. 
+The `statics` object is how we add a new method directly to a model itself. 
 */
 userSchema.statics.build = (attrs: UserAttrs) => {
   return new User(attrs);
