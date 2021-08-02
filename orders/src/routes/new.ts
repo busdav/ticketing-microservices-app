@@ -13,6 +13,12 @@ import { Order } from "../models/order";
 
 const router = express.Router();
 
+// Big like that just because it is an important parameter that we don't want to bury in some route handler below. (as it affects user so directly)
+// You could even extract this into an environment variable so you don't have to redeploy your whole application when you want to change this.
+// You could get even fancier and save this as a record to the database and add some web UI to it so you can allow an internal admin to change it on the fly.
+// Could even be on a per user basis. But for now we'll just leave it like this.
+const EXPIRATION_WINDOW_SECONDS = 15 * 60;
+
 router.post(
   "/api/orders",
   requireAuth,
@@ -44,12 +50,22 @@ router.post(
     }
 
     // Calculate an expiration date for this order
+    const expiration = new Date();
+    expiration.setSeconds(expiration.getSeconds() + EXPIRATION_WINDOW_SECONDS);
 
     // Build the order and save it to the database
+    const order = Order.build({
+      userId: req.currentUser!.id,
+      status: OrderStatus.Created,
+      expiresAt: expiration,
+      // condense `ticket: ticket` into `ticket`
+      ticket,
+    });
+    await order.save();
 
     // Publish an event saying that an order was created
 
-    res.send({});
+    res.status(201).send(order);
   }
 );
 

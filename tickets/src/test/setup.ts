@@ -14,6 +14,11 @@ declare global {
       However, as from the tickets microservice, we don't have access to ("/api/users/signup"), and we don't want to introduce a cross-microservice
       dependency, we're going to fake a cookie and a session object (see below). This means that the global signing method at the bottom 
       does no longer return a Promise, so we'll amend it to `signin(): string[];`, and we have to remove the async keywork on the signin method. 
+      (btw:)
+      If we get an error "no index signature" then we should change to: 
+      declare global {
+        var signin: () => string[];
+      }
       */
       signin(): string[];
     }
