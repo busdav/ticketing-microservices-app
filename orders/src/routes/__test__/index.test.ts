@@ -21,8 +21,36 @@ it("fetches orders for a particular user", async () => {
   const userTwo = global.signin();
 
   // Create one order as User #1
+  // We're destructuring the response object, just pulling `body`, and simultaneously renaming it to `orderOne`
+  const { body: orderOne } = await request(app)
+    .post("/api/orders")
+    .set("Cookie", userOne)
+    .send({ ticketId: ticketOne.id })
+    .expect(201);
 
   // Create two orders as User #2
+  const { body: orderTwo } = await request(app)
+    .post("/api/orders")
+    .set("Cookie", userTwo)
+    .send({ ticketId: ticketTwo.id })
+    .expect(201);
+
+  await request(app)
+    .post("/api/orders")
+    .set("Cookie", userTwo)
+    .send({ ticketId: ticketThree.id })
+    .expect(201);
+
   // Make request to get orders for User #2
+  const response = await request(app)
+    .get("/api/orders")
+    .set("Cookie", userTwo)
+    .expect(200);
+
   // Make sure we only go tht orders for User #2
+  expect(response.body.length).toEqual(2);
+  expect(response.body[0].id).toEqual(orderOne.id);
+  expect(response.body[1].id).toEqual(orderTwo.id);
+  expect(response.body[0].ticket.id).toEqual(ticketTwo.id);
+  expect(response.body[1].ticket.id).toEqual(ticketThree.id);
 });
